@@ -11,7 +11,7 @@
   <header class="site-header">
     <a class="brand" href="/" aria-label="Pantry and Plate home"><span class="brand-mark" aria-hidden="true">p.</span> pantry & plate</a>
     <nav aria-label="Main navigation"><a href="/saved">Saved recipes</a></nav>
-    <span class="mode-badge"><span aria-hidden="true">●</span> {{ 'Demo kitchen' if mode == 'demo' else 'AI kitchen' }}</span>
+    <span class="mode-badge"><span aria-hidden="true">●</span> AI kitchen</span>
   </header>
   <main>
     <section class="intro">
@@ -32,9 +32,6 @@
       </div></div>
       <p class="gallery-note">A little food inspiration · Illustrative images</p>
     </section>
-    {% if mode == 'demo' %}
-    <aside class="demo-notice"><strong>You’re in demo mode.</strong> Explore with a sample recipe. Serving quantities adjust, but ingredients, flavor, and difficulty remain fixed. No AI API is called.</aside>
-    {% endif %}
     <div class="workspace kitchen-workspace">
       <section class="form-card" aria-labelledby="form-title">
         <div class="section-heading"><span class="step">✦</span><div><h2 id="form-title">What’s in your kitchen?</h2><p>A few details are all we need.</p></div></div>
@@ -64,7 +61,7 @@
           <div class="nutrition-preview"><span aria-hidden="true">◒</span><div><strong>A little more on your plate.</strong><p>Every new recipe includes estimated calories and macros per serving.</p></div></div>
           </div></div>
           <button class="generate-button" type="submit" id="generate-button">Generate Recipe <span aria-hidden="true">↗</span></button>
-          <p class="form-footnote">{{ 'A practice run, with a real frontend-to-backend connection.' if mode == 'demo' else 'Your ingredients, a little AI inspiration, your next meal.' }}</p>
+          <p class="form-footnote">Your ingredients, a little AI inspiration, your next meal.</p>
         </form>
         <p id="status" class="status" role="status" aria-live="polite"></p>
         <p id="error" class="error" role="alert" hidden></p>

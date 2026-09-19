@@ -36,7 +36,6 @@ h3 { font: 25px Georgia, serif; margin: 0 0 24px; }
 .marquee-track.is-paused, .marquee-window:hover .marquee-track, .marquee-window:focus-within .marquee-track { animation-play-state: paused; }
 @keyframes dishes-scroll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } #gallery-toggle { display: none; } .marquee-window { overflow-x: auto; } .dish-group[aria-hidden] { display: none; } }
-.demo-notice { padding: 13px 19px; margin: 0 auto 22px; background: #f4ecd9; border: 1px solid #e7dabf; border-radius: 10px; color: #706044; font-size: 12px; }
 .kitchen-workspace { max-width: 1020px; margin: auto; }
 .form-card { background: #fffefa; border: 1px solid var(--line); padding: 30px; border-radius: 20px; box-shadow: 0 8px 25px #58432906; }
 .section-heading { display: flex; gap: 14px; align-items: start; margin-bottom: 28px; }

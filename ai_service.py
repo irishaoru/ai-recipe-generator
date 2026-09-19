@@ -1,4 +1,4 @@
-"""LIVE API ONLY: this module is called only when RECIPE_MODE=live."""
+"""Generate recipes using the Gemini API."""
 
 import json
 import os
@@ -42,7 +42,7 @@ class RecipeServiceError(Exception):
 def generate_ai_recipe(inputs):
     api_key = os.getenv("GEMINI_API_KEY", "").strip()
     if not api_key:
-        raise RecipeServiceError("Live mode needs GEMINI_API_KEY. Add it to your local .env file and restart Flask, or switch RECIPE_MODE to demo.")
+        raise RecipeServiceError("Recipe generation needs GEMINI_API_KEY. Add it to your local .env file and restart Flask.")
 
     try:
         # 3. PYTHON SENDS THE REAL EXTERNAL API REQUEST.
@@ -57,7 +57,7 @@ def generate_ai_recipe(inputs):
             ),
         ) as client:
             response = client.models.generate_content(
-                model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite"),
+                model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
                 contents=json.dumps(inputs),
                 config=types.GenerateContentConfig(
                     system_instruction=(

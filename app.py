@@ -1,26 +1,20 @@
-"""Small Flask backend: receive inputs, choose demo/live, return JSON."""
+"""Small Flask backend: receive inputs, call Gemini, return JSON."""
 
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 
 from ai_service import RecipeServiceError, generate_ai_recipe
-from demo_data import get_demo_recipe
 
 load_dotenv(Path(__file__).with_name(".env"))
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
-app.config["RECIPE_MODE"] = os.getenv("RECIPE_MODE", "demo").strip().lower()
-if app.config["RECIPE_MODE"] not in {"demo", "live"}:
-    raise ValueError("RECIPE_MODE must be demo or live.")
 
 
 @app.get("/")
 def index():
-    # Pass only the mode to HTML, never environment variables or the key.
-    return render_template("index.html", mode=app.config["RECIPE_MODE"])
+    return render_template("index.html")
 
 
 @app.get("/recipe")
@@ -71,17 +65,13 @@ def generate_recipe():
     except ValueError as error:
         return jsonify(error=str(error)), 400
 
-    mode = app.config["RECIPE_MODE"]
     try:
-        if mode == "demo":
-            recipe = get_demo_recipe(inputs["servings"])  # DEMO: local sample, scaled quantities, no API.
-        else:
-            recipe = generate_ai_recipe(inputs)  # LIVE: actual external API request.
+        recipe = generate_ai_recipe(inputs)
     except RecipeServiceError as error:
         return jsonify(error=str(error)), 502
 
     # 5. FLASK RETURNS THE RECIPE TO THE FRONTEND AS JSON.
-    return jsonify(recipe=recipe, mode=mode, received_inputs=inputs)
+    return jsonify(recipe=recipe, mode="live", received_inputs=inputs)
 
 
 @app.errorhandler(413)

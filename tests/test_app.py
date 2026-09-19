@@ -11,12 +11,12 @@ from google.genai import errors
 
 from app import app
 from ai_service import Recipe
-from demo_data import DEMO_RECIPE, get_demo_recipe
+from recipe_fixture import SAMPLE_RECIPE
 
 
 class RecipeAppTests(unittest.TestCase):
     def setUp(self):
-        app.config.update(TESTING=True, RECIPE_MODE="demo")
+        app.config.update(TESTING=True)
         self.client = app.test_client()
         self.inputs = {
             "ingredients": "tomatoes, chickpeas",
@@ -30,7 +30,8 @@ class RecipeAppTests(unittest.TestCase):
         }
 
     def test_page_assets_and_private_file(self):
-        self.assertIn(b"demo mode", self.client.get("/").data)
+        self.assertIn(b"AI kitchen", self.client.get("/").data)
+        self.assertNotIn(b"demo mode", self.client.get("/").data)
         for path in ("/static/style.css", "/static/script.js"):
             with self.client.get(path) as response:
                 self.assertEqual(response.status_code, 200)
@@ -48,13 +49,16 @@ class RecipeAppTests(unittest.TestCase):
         self.assertNotIn(b'id="recipe"', self.client.get("/").data)
 
     @patch("app.generate_ai_recipe")
-    def test_demo_echoes_inputs_without_api_call(self, live):
+    def test_generation_always_calls_gemini(self, live):
+        live.return_value = SAMPLE_RECIPE
+        app.config["RECIPE_MODE"] = "demo"  # Obsolete configuration cannot enable a fallback.
+        self.addCleanup(app.config.pop, "RECIPE_MODE", None)
         response = self.client.post("/generate-recipe", json=self.inputs)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["received_inputs"], self.inputs)
-        self.assertEqual(response.json["recipe"], get_demo_recipe())
-        self.assertEqual(response.json["mode"], "demo")
-        live.assert_not_called()
+        self.assertEqual(response.json["recipe"], SAMPLE_RECIPE)
+        self.assertEqual(response.json["mode"], "live")
+        live.assert_called_once_with(self.inputs)
 
     def test_invalid_inputs(self):
         for body in ({}, [], {"ingredients": "   "}, {"ingredients": ["rice"]},
@@ -65,19 +69,10 @@ class RecipeAppTests(unittest.TestCase):
         self.assertEqual(self.client.post("/generate-recipe", data="{", content_type="application/json").status_code, 400)
         self.assertEqual(self.client.post("/generate-recipe", json={"ingredients": "x" * 17000}).status_code, 413)
 
-    def test_only_ingredients_required(self):
+    @patch("app.generate_ai_recipe", return_value=SAMPLE_RECIPE)
+    def test_only_ingredients_required(self, generate):
         self.assertEqual(self.client.post("/generate-recipe", json={"ingredients": "rice"}).status_code, 200)
-
-    def test_servings_scale_demo_but_nutrition_remains_per_serving(self):
-        for servings in (1, 4, 12):
-            with self.subTest(servings=servings):
-                response = self.client.post("/generate-recipe", json={**self.inputs, "servings": servings})
-                self.assertEqual(response.status_code, 200)
-                recipe = response.json["recipe"]
-                self.assertEqual(recipe["servings"], servings)
-                self.assertEqual(recipe["nutrition_per_serving"], DEMO_RECIPE["nutrition_per_serving"])
-                self.assertIn(f"{120 * servings} g canned chickpeas, drained and rinsed", recipe["ingredients"])
-                self.assertNotIn("two bowls", " ".join(recipe["instructions"]))
+        self.assertEqual(generate.call_args.args[0]["servings"], 2)
 
     def test_invalid_new_preferences(self):
         for field, values in {"servings": [0, 13, True, 2.5, "2"], "flavor_profile": [[], "invalid"], "difficulty": [None, "expert"]}.items():
@@ -95,7 +90,6 @@ class RecipeAppTests(unittest.TestCase):
 
     @patch.dict(os.environ, {"GEMINI_API_KEY": ""})
     def test_live_missing_key_does_not_fall_back(self):
-        app.config["RECIPE_MODE"] = "live"
         response = self.client.post("/generate-recipe", json=self.inputs)
         self.assertEqual(response.status_code, 502)
         self.assertNotIn("recipe", response.json)
@@ -103,9 +97,8 @@ class RecipeAppTests(unittest.TestCase):
     @patch.dict(os.environ, {"GEMINI_API_KEY": "test-only-placeholder"})
     @patch("ai_service.genai.Client")
     def test_live_request_and_parsed_response(self, client_class):
-        app.config["RECIPE_MODE"] = "live"
         client = client_class.return_value.__enter__.return_value
-        client.models.generate_content.return_value = SimpleNamespace(candidates=[SimpleNamespace(finish_reason="STOP")], parsed=Recipe(**DEMO_RECIPE))
+        client.models.generate_content.return_value = SimpleNamespace(candidates=[SimpleNamespace(finish_reason="STOP")], parsed=Recipe(**SAMPLE_RECIPE))
         response = self.client.post("/generate-recipe", json=self.inputs)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["mode"], "live")
@@ -119,9 +112,8 @@ class RecipeAppTests(unittest.TestCase):
     @patch.dict(os.environ, {"GEMINI_API_KEY": "test-only-placeholder"})
     @patch("ai_service.genai.Client")
     def test_live_rejects_wrong_servings_or_difficulty(self, client_class):
-        app.config["RECIPE_MODE"] = "live"
         client = client_class.return_value.__enter__.return_value
-        client.models.generate_content.return_value = SimpleNamespace(candidates=[SimpleNamespace(finish_reason="STOP")], parsed=Recipe(**DEMO_RECIPE))
+        client.models.generate_content.return_value = SimpleNamespace(candidates=[SimpleNamespace(finish_reason="STOP")], parsed=Recipe(**SAMPLE_RECIPE))
         for change in ({"servings": 4}, {"difficulty": "Advanced"}):
             self.assertEqual(self.client.post("/generate-recipe", json={**self.inputs, **change}).status_code, 502)
 
@@ -129,7 +121,6 @@ class RecipeAppTests(unittest.TestCase):
     @patch("ai_service.genai.Client")
     def test_live_failure_and_unusable_response(self, client_class):
         from google.genai.errors import APIError
-        app.config["RECIPE_MODE"] = "live"
         client = client_class.return_value.__enter__.return_value
         client.models.generate_content.side_effect = APIError(503, {"error": {"message": "private provider details"}})
         response = self.client.post("/generate-recipe", json=self.inputs)
@@ -142,7 +133,6 @@ class RecipeAppTests(unittest.TestCase):
     @patch.dict(os.environ, {"GEMINI_API_KEY": "test-only-placeholder"})
     @patch("ai_service.genai.Client")
     def test_gemini_quota_timeout_and_blocked_responses(self, client_class):
-        app.config["RECIPE_MODE"] = "live"
         client = client_class.return_value.__enter__.return_value
         for failure in (errors.APIError(429, {"error": {"message": "private details"}}),
                         httpx.ReadTimeout("private details")):
@@ -153,20 +143,19 @@ class RecipeAppTests(unittest.TestCase):
         client.models.generate_content.side_effect = None
         for reason in ("SAFETY", "MAX_TOKENS"):
             client.models.generate_content.return_value = SimpleNamespace(
-                candidates=[SimpleNamespace(finish_reason=reason)], parsed=Recipe(**DEMO_RECIPE))
+                candidates=[SimpleNamespace(finish_reason=reason)], parsed=Recipe(**SAMPLE_RECIPE))
             self.assertEqual(self.client.post("/generate-recipe", json=self.inputs).status_code, 502)
 
-    @patch.dict(os.environ, {"GEMINI_API_KEY": "test-only-placeholder", "GEMINI_MODEL": "gemini-2.5-flash-lite"})
+    @patch.dict(os.environ, {"GEMINI_API_KEY": "test-only-placeholder", "GEMINI_MODEL": "gemini-3.5-flash-lite"})
     def test_real_sdk_serialization_with_fake_http_transport(self):
         """Exercise Google's actual SDK and schema parsing without network access."""
-        app.config["RECIPE_MODE"] = "live"
         actual_client = genai.Client
         requests = []
 
         def respond(request):
             requests.append(request)
             return httpx.Response(200, json={"candidates": [{
-                "content": {"role": "model", "parts": [{"text": json.dumps(DEMO_RECIPE)}]},
+                "content": {"role": "model", "parts": [{"text": json.dumps(SAMPLE_RECIPE)}]},
                 "finishReason": "STOP",
             }]})
 
@@ -177,9 +166,9 @@ class RecipeAppTests(unittest.TestCase):
         with patch("ai_service.genai.Client", side_effect=offline_client):
             response = self.client.post("/generate-recipe", json=self.inputs)
         self.assertEqual(response.status_code, 200, response.json)
-        self.assertEqual(response.json["recipe"], DEMO_RECIPE)
+        self.assertEqual(response.json["recipe"], SAMPLE_RECIPE)
         self.assertEqual(len(requests), 1)
-        self.assertIn("gemini-2.5-flash-lite:generateContent", requests[0].url.path)
+        self.assertIn("gemini-3.5-flash-lite:generateContent", requests[0].url.path)
         self.assertEqual(requests[0].headers["x-goog-api-key"], "test-only-placeholder")
         self.assertNotIn(b"test-only-placeholder", response.data)
 
