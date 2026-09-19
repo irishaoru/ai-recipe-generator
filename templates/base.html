@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} · Pantry & Plate</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">p.</span> pantry & plate</a>
+    <nav aria-label="Main navigation"><a href="/">Kitchen</a><a href="/saved">Saved recipes</a></nav>
+  </header>
+  <main class="collection-page">
+    <a class="back-link" href="/">← Back to kitchen</a>
+    <p id="error" class="error" role="alert" hidden></p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    {% block content %}{% endblock %}
+  </main>
+  <footer><span>pantry & plate</span><span>A little less waste. A little more possibility.</span></footer>
+</body>
+</html>

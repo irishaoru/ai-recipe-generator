@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="intro"><p class="eyebrow">YOUR PERSONAL RECIPE BOOK</p><h1>Saved for <em>another day.</em></h1><p>Your favorites, ready whenever you are.</p><p class="field-hint">Stored in this browser on this device. Clearing browser data removes saved recipes.</p></section>
+  <section id="saved-empty" class="empty-state" hidden><h2>Your recipe book is waiting.</h2><p>Generate a recipe, then select “Save recipe” to keep it here.</p><a href="/">Find your next meal →</a></section>
+  <div id="saved-list" class="saved-grid"></div>
+{% endblock %}

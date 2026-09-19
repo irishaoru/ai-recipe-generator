@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantry & Plate · Recipe Studio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Pantry and Plate home"><span class="brand-mark" aria-hidden="true">p.</span> pantry & plate</a>
+    <nav aria-label="Main navigation"><a href="/saved">Saved recipes</a></nav>
+    <span class="mode-badge"><span aria-hidden="true">●</span> {{ 'Demo kitchen' if mode == 'demo' else 'AI kitchen' }}</span>
+  </header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">YOUR PANTRY. YOUR CRAVINGS. YOUR NEXT FAVORITE.</p>
+      <h1>A little inspiration.<br><em>A lot of flavor.</em></h1>
+      <p>Turn what’s in your kitchen into something worth sitting down for.<br>Fresh ideas, made your way.</p>
+    </section>
+    <section class="dish-gallery" aria-label="Food inspiration">
+      <div class="gallery-toolbar"><span class="eyebrow">A TASTE OF WHAT’S POSSIBLE</span><button id="gallery-toggle" class="text-button" type="button" aria-pressed="false">Pause gallery</button></div>
+      <div class="marquee-window"><div class="marquee-track" id="dish-track">
+        {% for repeat in range(2) %}
+        <div class="dish-group" {% if repeat %}aria-hidden="true"{% endif %}>
+          {% for image, name, tag in [('ramen', 'A bowl of shoyu ramen', 'JAPANESE · WARM & UMAMI'), ('tacos', 'Taco night, done right', 'MEXICAN · FRESH & ZESTY'), ('paella', 'Saffron, sea & sunshine', 'SPANISH · RICH & AROMATIC'), ('curry', 'Comfort in a curry', 'INDIAN · WARM & SPICED'), ('pasta', 'A little Italian comfort', 'ITALIAN · RICH & COZY'), ('chickpea', 'Sunshine in a skillet', 'MEDITERRANEAN-INSPIRED · BRIGHT & ZESTY'), ('salad', 'Fresh from the garden', 'GRAIN BOWL · COLORFUL & CRISP'), ('burger', 'Big weekend energy', 'AMERICAN · SAVORY & SATISFYING')] %}
+          <figure class="dish-tile"><img src="{{ url_for('static', filename='images/' ~ image ~ '.jpg') }}" alt="{{ '' if repeat else name }}" width="600" height="400"><figcaption><span>{{ tag }}</span><strong>{{ name }}</strong></figcaption></figure>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div></div>
+      <p class="gallery-note">A little food inspiration · Illustrative images</p>
+    </section>
+    {% if mode == 'demo' %}
+    <aside class="demo-notice"><strong>You’re in demo mode.</strong> Explore with a sample recipe. Serving quantities adjust, but ingredients, flavor, and difficulty remain fixed. No AI API is called.</aside>
+    {% endif %}
+    <div class="workspace kitchen-workspace">
+      <section class="form-card" aria-labelledby="form-title">
+        <div class="section-heading"><span class="step">✦</span><div><h2 id="form-title">What’s in your kitchen?</h2><p>A few details are all we need.</p></div></div>
+        <form id="recipe-form">
+          <div class="form-columns"><div class="form-section">
+          <label for="ingredients">Your ingredients <span class="required">*</span></label>
+          <textarea id="ingredients" name="ingredients" rows="4" required maxlength="2000" placeholder="e.g. chickpeas, cherry tomatoes, spinach, garlic, lemon" aria-describedby="ingredients-hint"></textarea>
+          <p class="field-hint" id="ingredients-hint">Separate ingredients with commas. A little of this, a little of that.</p>
+          <button class="text-button" type="button" id="sample-button">+ Try the sample ingredients</button>
+          <label for="dietary-restrictions">Dietary restrictions <span class="optional">Optional</span></label>
+          <input id="dietary-restrictions" name="dietary_restrictions" maxlength="2000" placeholder="e.g. vegetarian, dairy-free, no peanuts">
+          <div class="field-row">
+            <div><label for="max-time">Time available</label><div class="time-input"><input id="max-time" name="max_time" type="number" min="1" max="1440" step="1" placeholder="30"><span>min</span></div></div>
+            <div><label for="cuisine">Cuisine preference</label><select id="cuisine" name="cuisine"><option value="">Surprise me</option>Mediterranean</option>Italian</option>Mexican</option>Indian</option>Japanese</option>Chinese</option>Thai</option>French</option>Middle Eastern</option></select></div>
+          </div>
+          <label for="equipment">Available equipment <span class="optional">Optional</span></label>
+          <input id="equipment" name="equipment" maxlength="2000" placeholder="e.g. stovetop, skillet, oven">
+          </div><div class="form-section preferences-section">
+          <p class="eyebrow">MAKE IT YOURS</p><h3>What are you craving?</h3>
+          <label for="flavor-profile">Flavor profile</label>
+          <select id="flavor-profile" name="flavor_profile"><option>Surprise me</option><option>Fresh &amp; bright</option><option>Spicy</option><option>Savory</option><option>Sweet &amp; savory</option><option>Smoky</option></select>
+          <p class="field-hint">Set the mood, from a little heat to a bright citrus finish.</p>
+          <label for="servings">How many at the table?</label>
+          <select id="servings" name="servings">{% for count in range(1, 13) %}<option value="{{ count }}" {% if count == 2 %}selected{% endif %}>{{ count }} {{ 'person' if count == 1 else 'people' }}</option>{% endfor %}</select>
+          <label for="difficulty">Cooking difficulty</label>
+          <select id="difficulty" name="difficulty"><option value="Any">Any level</option><option value="Easy">Easy · everyday basics</option><option value="Medium">Medium · a few extra steps</option><option value="Advanced">Advanced · up for a challenge</option></select>
+          <div class="nutrition-preview"><span aria-hidden="true">◒</span><div><strong>A little more on your plate.</strong><p>Every new recipe includes estimated calories and macros per serving.</p></div></div>
+          </div></div>
+          <button class="generate-button" type="submit" id="generate-button">Generate Recipe <span aria-hidden="true">↗</span></button>
+          <p class="form-footnote">{{ 'A practice run, with a real frontend-to-backend connection.' if mode == 'demo' else 'Your ingredients, a little AI inspiration, your next meal.' }}</p>
+        </form>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+        <p id="error" class="error" role="alert" hidden></p>
+      </section>
+    </div>
+  </main>
+  <footer><span>pantry & plate</span><span>A little less waste. A little more possibility.</span></footer>
+</body>
+</html>

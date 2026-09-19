@@ -1,0 +1,42 @@
+[
+  {
+    "file": "chickpea.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Lemony chickpea and cherry tomato skillet with wilted baby spinach, garlic, olive oil and lemon, in a rustic cream ceramic shallow bowl. No cheese, no bread. Close editorial food photograph, slightly overhead three-quarter angle, dish fills frame, warm natural window light, terracotta linen, appetizing real textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "burger.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. A delicious tall cheeseburger with sesame bun, lettuce, tomato, melted cheddar and caramelized onions, golden fries beside it, on a cream plate. Close editorial food photograph, three-quarter angle, burger fills frame, warm natural window light, dark warm background, appetizing real textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "pasta.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Fresh rigatoni pasta in rich tomato sauce with basil leaves and a little grated parmesan in an ivory ceramic bowl. Close editorial food photograph, slightly overhead three-quarter angle, dish fills frame, warm natural window light, soft olive and cream background, appetizing real textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "salad.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Vibrant colorful grain bowl with roasted sweet potato, avocado, cucumber, radishes, quinoa and leafy greens, lemon tahini dressing, in a cream ceramic bowl. Close editorial food photograph, slightly overhead three-quarter angle, dish fills frame, warm natural window light, linen background, appetizing real textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "ramen.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Japanese shoyu ramen in a dark ceramic bowl, springy noodles in amber broth, sliced chashu pork, a halved soft-boiled egg, nori, bamboo shoots and scallions, on a wooden table with chopsticks. Close editorial food photography, slightly overhead three-quarter angle, dish fills the frame, warm natural window light, appetizing realistic food textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "curry.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Indian chana masala, chickpeas in a rich tomato and onion gravy with cilantro, served in a small brass bowl with basmati rice and roti beside it, on a warm linen table. Close editorial food photography, slightly overhead three-quarter angle, dish fills the frame, warm natural window light, appetizing realistic food textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "tacos.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Mexican corn tortilla tacos with grilled chicken, diced white onion, cilantro, salsa verde and lime wedges, on a handmade ceramic plate. No hard taco shells, no shredded cheddar. Close editorial food photography, slightly overhead three-quarter angle, dish fills the frame, warm natural window light, appetizing realistic food textures. No text, no logos, no watermark, no hands. Create one photograph."
+  },
+  {
+    "file": "paella.jpg",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: food application recipe card photograph, landscape 3:2. Spanish seafood paella in a shallow traditional steel paella pan, golden saffron rice, shrimp, mussels, red pepper and lemon wedges. Clearly visible individual rice grains, rustic Mediterranean table setting. Close editorial food photography, slightly overhead three-quarter angle, dish fills the frame, warm natural window light, appetizing realistic food textures. No text, no logos, no watermark, no hands. Create one photograph."
+  }
+]

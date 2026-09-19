@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+  <section id="missing-recipe" class="empty-state" hidden><h1>No recipe here yet.</h1><p>Generate a recipe in the kitchen, or open one from your saved list.</p><a href="/saved">Browse saved recipes →</a></section>
+  <article id="recipe" class="recipe-panel recipe-page" hidden>
+    <figure class="recipe-photo"><img id="recipe-image" alt="" width="1200" height="800"><figcaption id="image-caption">Illustrative food image</figcaption></figure>
+    <div class="recipe-content">
+    <p id="recipe-label" class="eyebrow"></p><h1 id="recipe-name"></h1><p id="recipe-description"></p>
+    <div class="recipe-meta"><span id="recipe-time" class="time-badge"></span><span id="recipe-difficulty" class="time-badge"></span><span id="recipe-flavor" class="time-badge"></span></div>
+    <p id="sample-warning" class="sample-warning" hidden>Demo recipe: quantities are scaled to your serving size; flavor, difficulty, and ingredients stay fixed. It may not meet your dietary, time, or equipment requirements.</p>
+    <button type="button" class="generate-button" id="save-button">Save recipe</button>
+    <p class="field-hint">Saved in this browser, on this device.</p>
+    <section class="nutrition-section" aria-labelledby="nutrition-title"><div class="nutrition-heading"><h2 id="nutrition-title">A little nourishment</h2><span>PER SERVING · APPROXIMATE</span></div><div id="nutrition-values" class="nutrition-grid"></div><p id="nutrition-note" class="field-hint"></p></section>
+    <h2>What you’ll need</h2><ul id="recipe-ingredients"></ul>
+    <h2>Let’s get cooking</h2><ol id="recipe-instructions"></ol>
+    <details><summary>Inputs received by Flask</summary><dl id="received-inputs"></dl></details>
+    <a class="back-link" href="/">Make something new →</a>
+    </div>
+  </article>
+{% endblock %}
